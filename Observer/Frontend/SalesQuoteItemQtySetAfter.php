@@ -60,20 +60,27 @@ class SalesQuoteItemQtySetAfter implements
         if ( !$this->helper->isEnabled() ) {
             return $this;
         }
-        /** @var \Magento\Quote\Model\Quote\Item $quoteItem */
-        $quoteItem = $observer->getEvent()->getItem();
-        $product   = $this->_product->loadByAttribute('sku', $quoteItem->getSku());
-        $stockQty  = $this->_stockItem->getStockQty($product->getId());
-        if ( $stockQty && $quoteItem->getQty() > $stockQty ) {
-            $this->_messageManager->addWarningMessage(__("Available Qty for %1 is %2", $product->getName(), $stockQty));
-            if ( $this->helper->isAutoAdd() ) {
-                $quoteItem->getQuote()->setIsSuperMode(true);
-                $quoteItem->getQuote()->setHasError(false);
-                $quoteItem->setHasError(false);
-                $quoteItem->setData('qty', $stockQty);
-            }
-        }
-        return $this;
+		
+		/** @var \Magento\Quote\Model\Quote\Item $quoteItem */
+		$quoteItem = $observer->getEvent()->getItem();
+		$product   = $this->_product->loadByAttribute('sku', $quoteItem->getSku());
+			
+		if($this->_product->loadByAttribute('sku', $quoteItem->getSku())) {
+			
+			$stockQty  = $this->_stockItem->getStockQty($product->getId());
+			if ( $stockQty && $quoteItem->getQty() > $stockQty ) {
+				$this->_messageManager->addWarningMessage(__("Available Qty for %1 is %2", $product->getName(), $stockQty));
+				if ( $this->helper->isAutoAdd() ) {
+					$quoteItem->getQuote()->setIsSuperMode(true);
+					$quoteItem->getQuote()->setHasError(false);
+					$quoteItem->setHasError(false);
+					$quoteItem->setData('qty', $stockQty);
+				}
+			}
+			return $this;
+			
+		}
+        
     }
 
 }
